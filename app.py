@@ -14,6 +14,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
+nltk.data.path.append('./nltk_data')
 import random
 import warnings
 warnings.filterwarnings('ignore')
@@ -9893,8 +9894,8 @@ intents={
         }
     ]
 }
-nltk.download('punkt')
-nltk.download('wordnet')
+#nltk.download('punkt')
+#nltk.download('wordnet')
 
 stemmer = WordNetLemmatizer()
 
@@ -10116,7 +10117,7 @@ criterion = nn.BCELoss()
 optimizer = optim.Adam(model.parameters())
 
 # Train the model and evaluate on the testing set
-num_epochs = 2
+num_epochs = 500
 for epoch in range(num_epochs):
     # Training
     model.train()
