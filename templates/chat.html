@@ -2,26 +2,128 @@
 <html>
 <head>
     <title>Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        h1, h2 {
+            text-align: center;
+            margin: 5px;
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        h2 {
+            color: #555;
+        }
+        #chat_window {
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            padding: 15px;
+            background-color: #fff;
+            width: 80%;
+            height: 60%;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            font-family: monospace;
+        }
+        #user_message {
+            width: 70%;
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .message {
+            margin: 5px 0;
+            white-space: pre-wrap; /* Preserve spaces and newlines */
+        }
+        .user-message {
+            color: #333;
+        }
+        .bot-message {
+            color: #4CAF50;
+        }
+    </style>
     <script>
         async function sendMessage() {
-            const userMessage = document.getElementById('user_message').value;
-            const response = await fetch('/get_response', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: userMessage })
+    const userMessage = document.getElementById('user_message').value.trim();
+    if (!userMessage) {
+        alert("Please enter a message.");
+        return;
+    }
+
+    const response = await fetch('/get-response', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sentence: userMessage })
+    });
+    const data = await response.json();
+
+    const chatWindow = document.getElementById('chat_window');
+
+    // Append user message
+    const userDiv = document.createElement('div');
+    userDiv.className = 'message user-message';
+    userDiv.innerHTML = `<b>User:</b> ${userMessage}`;
+    chatWindow.appendChild(userDiv);
+
+    // Format bot response to make ** some info ** or ''' some info ''' bold
+    let botResponse = data.response;
+    botResponse = botResponse
+        .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') // Format **text** as bold
+        .replace(/'''(.*?)'''/g, '<b>$1</b>'); // Format '''text''' as bold
+
+    // Append bot response
+    const botDiv = document.createElement('div');
+    botDiv.className = 'message bot-message';
+    botDiv.innerHTML = `<b>Bot:</b> ${botResponse}`;
+    chatWindow.appendChild(botDiv);
+
+    // Clear input
+    document.getElementById('user_message').value = '';
+
+    // Auto-scroll to the bottom
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+}
+
+
+        // Allow Enter key to submit the form
+        document.addEventListener("DOMContentLoaded", function() {
+            const inputField = document.getElementById('user_message');
+            inputField.addEventListener("keydown", function(event) {
+                if (event.key === "Enter") {
+                    event.preventDefault(); // Prevent default Enter behavior
+                    sendMessage(); // Trigger the send message function
+                }
             });
-            const data = await response.json();
-            const chatWindow = document.getElementById('chat_window');
-            chatWindow.innerHTML += `<div><b>User:</b> ${userMessage}</div>`;
-            chatWindow.innerHTML += `<div><b>Bot:</b> ${data.response}</div>`;
-            document.getElementById('user_message').value = '';
-        }
+        });
     </script>
 </head>
 <body>
-    <h1>Chatbot</h1>
-    <div id="chat_window" style="border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto;"></div>
-    <input type="text" id="user_message" placeholder="Type your message..." />
+    <h1>Chat Bot for Python Language Query</h1>
+    <h2>Created by ATCF-GROUP8</h2>
+    <div id="chat_window"></div>
+    <input type="text" id="user_message" placeholder="Type your Python query..." />
     <button onclick="sendMessage()">Send</button>
 </body>
 </html>
